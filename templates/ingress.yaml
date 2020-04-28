@@ -1,0 +1,21 @@
+{{- $stushopservice := .Values.stushopservice -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: helloworld-rules
+spec:
+  rules:
+  - host: {{ .Values.stushopapp.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ $stushopservice.name }}
+          servicePort: 80
+  - host: {{ .Values.practiceapp.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ .Values.practiceappservice.name }}
+          servicePort: 80

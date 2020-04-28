@@ -1,0 +1,45 @@
+{{- $practiceapp := .Values.practiceapp -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $practiceapp.name }}
+spec:
+  replicas: {{ $practiceapp.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $practiceapp.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $practiceapp.name }}
+    spec:
+      containers:
+        - name: {{ $practiceapp.name }}
+          image: {{ $practiceapp.image }}
+          resources:
+            limits:
+              memory: {{ $practiceapp.resources.memory }}
+              cpu: {{ $practiceapp.resources.cpu }}
+          livenessProbe:
+            httpGet:
+              path: {{ $practiceapp.livenessProbe.path }}
+              port: {{ $practiceapp.livenessProbe.port }}
+            initialDelaySeconds: {{ $practiceapp.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ $practiceapp.livenessProbe.timeoutSeconds }}
+          ports:
+            - containerPort: {{ $practiceapp.containerPort }}
+              name: {{ $practiceapp.containerPortName }}
+
+---
+{{- $practiceappservice := .Values.practiceappservice -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $practiceapp.name }}-service
+spec:
+  selector:
+    app: {{ $practiceapp.name }}
+  type: {{ $practiceappservice.type }}
+  ports:
+    - port: {{ $practiceappservice.port }}
+      targetPort: {{ $practiceapp.containerPortName }}

@@ -1,0 +1,39 @@
+{{- $db := .Values.stushopDB -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $db.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $db.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $db.name }}
+    spec:
+      containers:
+      - name: {{ $db.name }}db
+        image: {{ $db.image }}:{{ $db.imageVersion }}
+        resources:
+          limits:
+            memory: {{ $db.resources.memory }}
+            cpu: {{ $db.resources.cpu }}
+        ports:
+        - containerPort: {{ $db.containerPort }}
+          name: {{ $db.containerPortName }}
+
+---
+{{- $dbservice := .Values.stushopDBService -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.stushopapp.environment.DB_URI }}
+spec:
+  type: {{ $dbservice.type }}
+  selector:
+    app: {{ $db.name }}
+  ports:
+  - port: {{ $db.containerPort }}
+    targetPort: {{ $db.containerPortName }}

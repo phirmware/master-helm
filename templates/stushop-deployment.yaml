@@ -1,0 +1,49 @@
+{{- $stushopapp := .Values.stushopapp  -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $stushopapp.name }}-app
+spec:
+  replicas: {{ $stushopapp.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $stushopapp.name }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ $stushopapp.name }}-app
+    spec:
+      containers:
+        - name: {{ $stushopapp.name }}
+          image: {{ $stushopapp.image }}:{{ $stushopapp.imageVersion }}
+          # {{- with $stushopapp.resources }}
+          #  resources:
+          #   limits:
+          #     memory: {{ .memory }}
+          #     cpu: {{ .cpu }}
+          # {{- end }}
+          env:
+            {{- with $stushopapp.environment }}
+            - name: DB_URI
+              value: mongodb://{{ .DB_URI }}/student_shop
+            - name: IMG_BASE_URI
+              value: {{ .IMG_BASE_URI }}
+            - name: TOKEN_KEY
+              value: {{ .TOKEN_KEY }}
+            {{- end }}
+          ports:
+            - containerPort: {{ $stushopapp.containerPort }}
+              name: {{ $stushopapp.containerPortName }}
+---
+{{- $stushopservice := .Values.stushopservice  -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $stushopservice.name }}
+spec:
+  type: {{ $stushopservice.type }}
+  selector:
+    app: {{ $stushopapp.name }}-app
+  ports:
+    - port: {{ $stushopservice.port }}
+      targetPort: {{ $stushopapp.containerPortName }}

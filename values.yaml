@@ -1,0 +1,54 @@
+stushopapp:
+  name: stushop
+  image: 09036229746/stushop
+  host: stushop.kubernetes.phirmware.me
+  imageVersion: v2
+  environment: 
+    DB_URI: mongo-service
+    IMG_BASE_URI: http://stushop.kubernetes.phirmware.me
+    TOKEN_KEY: Tmx8Y=fEn!A2KF=5cU2#&UaHMJweeUcTSWN5-6pXTUEHpu?Yhv
+  resources:
+    memory: 80Mi
+    cpu: 125m
+  replicas: 1
+  containerPort: 3000
+  containerPortName: stushopport
+
+stushopservice:
+  name: stushop-service
+  type: NodePort
+  port: 80
+
+stushopDB:
+  name: stushopdb
+  image: mongo
+  imageVersion: 4.0.4
+  resources:
+    memory: 80Mi
+    cpu: 125m
+  containerPort: 27017
+  containerPortName: mongoport
+
+stushopDBService:
+  type: NodePort
+
+practiceapp:
+  name: practiceapp
+  host: practice.kubernetes.phirmware.me
+  image: 09036229746/practice_app
+  resources:
+    memory: "80Mi"
+    cpu: "125m"
+  livenessProbe:
+    path: /healthz
+    port: 3000
+    initialDelaySeconds: 15
+    timeoutSeconds: 30
+  replicaCount: 2
+  containerPort: 3000
+  containerPortName: practice-port
+
+practiceappservice:
+  name: practiceapp-service
+  type: NodePort
+  port: 80
